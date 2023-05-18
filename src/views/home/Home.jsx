@@ -11,9 +11,7 @@ function Home() {
 
   useEffect(() => {
     try {
-      axios
-        .get("http://localhost:3001/products")
-        .then(({ data }) => setProducts(data));
+      axios.get("/products").then(({ data }) => setProducts(data));
     } catch (error) {
       console.log(error.message);
     }

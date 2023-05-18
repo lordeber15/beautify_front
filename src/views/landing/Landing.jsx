@@ -116,7 +116,7 @@ export default function Landing() {
         <button
           onClick={(e) => {
             e.preventDefault();
-            window.open("http://localhost:3001/auth/google");
+            window.open("/auth/google");
           }}
         >
           boton google
