@@ -1,0 +1,28 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300&family=Playfair+Display&display=swap");
+
+* {
+  padding: 0px; 
+  margin: 0px;
+  --background: #fef2f4;
+  /* --background: #7c7677; */
+  --accent1: #d14d72;
+  --accent2: #f5b7b1;
+  --text: #3d3b54;
+  --text-alt: #a2a0bb;
+  --muted: #d3d3de;
+  --background-alt: #FBF4F5;
+  --gradient: linear-gradient(90deg, var(--accent1) 0%, var(--accent2) 100%);
+}
+:root{
+overflow: auto;
+}
+:root::-webkit-scrollbar{
+  width: 3px;
+  color: var(--text)
+}
+:root::-webkit-scrollbar-thumb{
+  background: var(--text);
+  border-radius: 10px;
+
+}
