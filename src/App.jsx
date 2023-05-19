@@ -25,7 +25,7 @@ import Login from "./components/login/Login";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import { CLIENT, ADMIN } from "./utils/roles";
 import axios from "axios";
-axios.defaults.baseURL = "beautifybackend-production.up.railway.app";
+axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/";
 function App() {
   const locationNow = useLocation();
   const dispatch = useDispatch();
@@ -54,6 +54,7 @@ function App() {
   };
 
   useEffect(() => {
+    console.log(products);
     dispatch(getAllCategories(categories));
     dispatch(getAllProducts(products));
   }, [dispatch, products, categories]);
