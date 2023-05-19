@@ -7,32 +7,52 @@
     display: flex;
     flex-direction: column;
 }
-
 .Title{
     margin: 20px;
     padding: 10px;
 }
 .description{
+    margin: 20px;
+    padding: 10px;
+}
+.Promos{
+    margin: 30px;
     display: flex;
-    justify-content: center;
-    flex-direction: column;
+    padding: 5rem;
+    transition: 1.5s;
+
 }
 .Slider{
     position:relative;
-    height: 80vh;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    width:100vw;
+    width:200vw;
+}
+
+.Next{
+    border: none;
+    background-color: transparent;
+}
+.Next:hover{
+    cursor: pointer;
 }
 .promoCard{
     background-color: var(--accent1);
-    height: 50%;
-    width: 50%;
+    height: 50vh;
+    width:50vw;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding:1rem 0rem; 
+    padding:1rem 0rem 
+}
+.customPrevArrow{
+    color:red;
+    padding: 40rem;
+}
+.customArrow{
+    background-color: red;
 }
