@@ -1,25 +1,23 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-
 const useGetProducts = () => {
+  const [data, setData] = useState([]);
+  const getProducts = () => {
+    axios
+      .get(`/products`)
+      .then((res) => {
+        console.log(res);
+        setData(res.data);
+      })
+      .catch((err) => console.log(err.message));
+  };
 
-    const [data, setData] = useState([]);
-    const URL_BASE = "http://localhost:3001"
-    const getProducts = () => {
-        axios
-            .get(`${URL_BASE}/products`)
-            .then((res) => {
-                setData(res.data);
-            })
-            .catch((err) => console.log(err.message));
-    };
+  useEffect(() => {
+    getProducts();
+  }, []);
 
-    useEffect(() => {
-        getProducts();
-    }, []);
-
-    return [data];
-}
+  return [data];
+};
 
 export default useGetProducts;
