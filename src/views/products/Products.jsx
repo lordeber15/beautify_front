@@ -3,7 +3,7 @@ import Paginations from "../../components/paginations/Paginations";
 import SearchBar from "../../components/searchBar/SearchBar";
 import Filter from "../../components/filter/Filter";
 import Order from "../../components/order/Order";
-import styles from "./products.module.css";
+import styles from "./Products.module.css";
 
 function Products() {
   const [currentPage, setCurrentPage] = useState(1);
