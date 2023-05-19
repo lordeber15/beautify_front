@@ -24,7 +24,8 @@ import { loginWithGoogleFirebase } from "./utils/firebaseConfig";
 import Login from "./components/login/Login";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import { CLIENT, ADMIN } from "./utils/roles";
-
+import axios from "axios";
+axios.defaults.baseURL = "beautifybackend-production.up.railway.app";
 function App() {
   const locationNow = useLocation();
   const dispatch = useDispatch();
