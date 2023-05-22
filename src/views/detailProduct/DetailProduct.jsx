@@ -19,7 +19,7 @@ import AlertFavorite from "../../components/alertFavorite/AlertFavorite";
 
 function DetailProduct({ handleLoginClick }) {
   const navigate = useNavigate();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [errorQuantity, setErrorQuantity] = useState(false);
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -163,9 +163,9 @@ function DetailProduct({ handleLoginClick }) {
               className={styles.inputCantidad}
               onChange={handleQuantity}
               type="number"
-              min="1"
+              min="0"
               max={stock}
-              defaultValue="1"
+              defaultValue="0"
             />
             {errorQuantity && (
               <span>Error: max quantity available {stock}</span>
@@ -173,6 +173,7 @@ function DetailProduct({ handleLoginClick }) {
             <label className={styles.shopMax}>Max {stock}</label>
             {/* <Link to="/cart"> */}
             <button
+              disabled={quantity<=0}
               onClick={handleAddToCart}
               name="buyNow"
               className={styles.btnShopNow}
@@ -184,6 +185,7 @@ function DetailProduct({ handleLoginClick }) {
 
             <div className={styles.btnCartAndList}>
               <button
+                disabled={quantity<=0}
                 onClick={handleAddToCart}
                 name="addToCart"
                 className={styles.addCart}
