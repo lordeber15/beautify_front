@@ -1,21 +1,25 @@
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-
-// import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-// import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import PromoCard from "../../components/promo card/PromoCard";
 import styles from "./Home.module.css";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
+import SectionCards from "../../components/sectionCards/SectionCards";
+import { showError } from "../../redux/actions";
+import FooterAll from "../..//components/footerAll/FooterAll";
+import { getProducts } from "../../request/product";
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const allProducts = useSelector((state) => state.allProducts);
+  const dispatch = useDispatch();
 
   // const [current, setCurrent] = useState(0);
   useEffect(() => {
     try {
-      axios.get("/products").then(({ data }) => setProducts(data));
+      getProducts().then(({ data }) => setProducts(data));
     } catch (error) {
+      dispatch(showError({ tittle: "Error", message: error.message }));
       console.log(error.message);
     }
   }, []);
@@ -62,6 +66,22 @@ function Home() {
         modi amet quasi reiciendis rem dolorum! Iste consectetur delectus
         dignissimos explicabo facilis.
       </span>
+      {allProducts && (
+        <SectionCards
+          nameSection={"Most populars"}
+          arrayProducts={allProducts}
+          populars={true}
+        />
+      )}
+      {allProducts && (
+        <SectionCards
+          nameSection={"Pencil"}
+          arrayProducts={allProducts}
+          category={"Pencil"}
+          isCategory={true}
+        />
+      )}
+      <FooterAll />
     </div>
   );
 }

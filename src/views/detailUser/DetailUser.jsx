@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 import { getClient, updateClient } from "../../request/clients";
 import { useSelector } from "react-redux";
 import { getAuth, signOut } from "firebase/auth";
-import { firebaseApp, uploadProfilePicture } from "../../utils/firebaseConfig";
+import { firebaseApp } from "../../utils/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/actions";
 import styles from "./DetailUser.module.css";
-import ImageComponent from "../../components/imageComponent/ImageComponent";
-import productDefault from "../../assets/images/camera-icon.png";
-import cameraIcon from "../../assets/images/camera-icon.png";
+import { getProductById } from "../../request/product";
+import { anyErrors, validateUpdateUser } from "../../utils/validateUpdateUser";
+import Name from "../../components/detailUserForm/name";
+import Image from "../../components/detailUserForm/image";
+import Phone from "../../components/detailUserForm/phone";
+import Adress from "../../components/detailUserForm/adress";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
 function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
   const globalUserData = useSelector((state) => state.userData);
@@ -33,6 +38,9 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
 
   const onLogout = async () => {
     setLogout(false);
+    // mandar al back la info del carrito
+    await getProductById(1); // esta petición es cualquier cosa, pero necesito el await. Va a ser reemplazada por la petición que guarda el carrito
+    localStorage.clear();
     handleDetailClick();
     dispatch(logout());
     navigate("/");
@@ -43,40 +51,35 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
     getDataFromDb(globalUserData.email);
   }, []);
 
-  const [userData, setUserData] = useState({
+  const initialState = {
     id: "",
     name: "",
     email: "",
     adress: "",
     phone: "",
     image: "",
-  });
+  };
 
-  const [updatedData, setUpdatedData] = useState({
-    name: "",
-    email: "",
-    adress: "",
-    phone: "",
-    image: "",
-  });
+  const [userData, setUserData] = useState(initialState);
 
-  const [visibleInputs, setVisibleInputs] = useState({
-    name: false,
-    email: false,
-    adress: false,
-    phone: false,
-    image: false,
-  });
+  const [updatedData, setUpdatedData] = useState(initialState);
+
+  const [errors, setErrors] = useState(initialState);
+
+  const [visibleInputs, setVisibleInputs] = useState(initialState);
 
   const anyUpdatedData = () => {
     for (const property in updatedData) {
-      if (updatedData[property]) return true;
+      if (visibleInputs[property]) return true;
     }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const response = await updateClient(updatedData, userData.id);
+    const response = await updateClient(
+      { ...updatedData, fullName: updatedData.name },
+      userData.id
+    );
     const userFromDb = response.data;
     setUserData({
       id: userFromDb.id,
@@ -86,37 +89,17 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
       phone: userFromDb.phone,
       image: userFromDb.image,
     });
-    setVisibleInputs({
-      name: false,
-      email: false,
-      adress: false,
-      phone: false,
-    });
-    setUpdatedData({
-      name: "",
-      email: "",
-      adress: "",
-      phone: "",
-      image: "",
-    });
-  };
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const archivo = event.dataTransfer.files[0];
-    uploadProfilePicture(archivo, setUpdatedData, updatedData);
+    setVisibleInputs(initialState);
+    setUpdatedData(initialState);
   };
 
   const handleChange = (event) => {
     const property = event.target.name;
     const value = event.target.value;
     setUpdatedData({ ...updatedData, [property]: value });
+    setErrors(
+      validateUpdateUser({ ...updatedData, [property]: value }, visibleInputs)
+    );
   };
 
   const handleVisibleInputs = (event, close) => {
@@ -125,8 +108,12 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
       ...visibleInputs,
       [property]: !visibleInputs[property],
     });
-    if (close) setUpdatedData({ ...updatedData, [property]: "" });
+    if (close) {
+      setUpdatedData({ ...updatedData, [property]: "" });
+      setErrors({ ...errors, [property]: "" });
+    } else setErrors({ ...errors, [property]: true }, visibleInputs);
   };
+
   return (
     <div className={styles.loginForm}>
       <div
@@ -140,171 +127,107 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
       ></div>
 
       <form onSubmit={handleSubmit} className={styles.Container}>
-        <button
-          onClick={handleDetailClick}
-          className={styles.closeDetailButton}
-        >
-          {"< Close"}
-        </button>
-        <div className={styles.textContainer}>
-          {visibleInputs.name ? (
-            <div className={styles.namePropertys}>
-              <input onChange={handleChange} type="text" name="name"></input>
+        {!userData.email ? (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <div className={styles.closeButtons}>
+              <button onClick={onLogout} className={styles.closeDetailButton}>
+                Logout
+              </button>
               <button
-                name="name"
-                onClick={(event) => {
-                  event.preventDefault;
-                  handleVisibleInputs(event, true);
-                }}
+                onClick={handleDetailClick}
+                className={styles.closeDetailButton}
               >
-                x
+                {"< Close"}
               </button>
             </div>
-          ) : (
-            <div className={styles.namePropertys}>
-              <h2 className={styles.value}>
-                {userData.name ? userData.name : "Unknown"}
-              </h2>
-              <button
-                name="name"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleVisibleInputs(event);
-                }}
-              >
-                Update
-              </button>
-            </div>
-          )}
-        </div>
 
-        <div className={styles.imageContainer}>
-          {visibleInputs.image ? (
-            <div
-              style={{
-                backgroundImage: `url(${
-                  updatedData.image.length && updatedData.image
-                })`,
-              }}
-              className={styles.dragContainer}
-              onDrop={(event) => handleDrop(event)}
-              onDragOver={(e) => handleDragOver(e)}
-            >
-              {!updatedData.image && <p>Drag image here</p>}
-              <button
-                name="image"
-                className={styles.updateImageButton}
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleVisibleInputs(event, true);
-                }}
-              >
-                Back
-              </button>
-            </div>
-          ) : (
-            <div className={styles.image}>
-              <img src={userData.image ? userData.image : productDefault} />
-              {/* <ImageComponent
-                src={userData.image}
-                notFoundSrc={productDefault}
-              /> */}
-              <button
-                name="image"
-                className={styles.updateImageButton}
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleVisibleInputs(event);
-                }}
-              >
-                Update
-              </button>
-            </div>
-          )}
-        </div>
+            <Name
+              visibleInputs={visibleInputs}
+              handleVisibleInputs={handleVisibleInputs}
+              handleChange={handleChange}
+              userData={userData}
+              errors={errors}
+              handleSubmit={handleSubmit}
+            />
 
-        <div className={styles.emailContainer}>
-          <h3 className={styles.emailTitle}>Email</h3>
-
-          <div className={styles.emailPropertys}>
-            <h3 className={styles.value}>
-              {userData.email ? userData.email : "Unknown"}
-            </h3>
-          </div>
-        </div>
-
-        <div className={styles.textContainer}>
-          <h3>Phone number:</h3>
-
-          {visibleInputs.phone ? (
-            <div className={styles.propertys}>
-              <input onChange={handleChange} type="text" name="phone"></input>
-              <button
-                name="phone"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleVisibleInputs(event, true);
-                }}
-              >
-                x
-              </button>
-            </div>
-          ) : (
-            <div className={styles.propertys}>
+            <div className={styles.emailPropertys}>
               <h3 className={styles.value}>
-                {userData.phone ? userData.phone : "Unknown"}
+                {userData.email ? userData.email : "Unknown"}
               </h3>
+            </div>
+
+            <Image
+              updatedData={updatedData}
+              visibleInputs={visibleInputs}
+              handleVisibleInputs={handleVisibleInputs}
+              userData={userData}
+              errors={errors}
+              setUpdatedData={setUpdatedData}
+              setErrors={setErrors}
+            />
+
+            <Phone
+              visibleInputs={visibleInputs}
+              handleVisibleInputs={handleVisibleInputs}
+              handleChange={handleChange}
+              userData={userData}
+              errors={errors}
+              handleSubmit={handleSubmit}
+            />
+
+            <Adress
+              visibleInputs={visibleInputs}
+              handleVisibleInputs={handleVisibleInputs}
+              handleChange={handleChange}
+              userData={userData}
+              errors={errors}
+              handleSubmit={handleSubmit}
+            />
+
+            {anyUpdatedData() && (
               <button
-                name="phone"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleVisibleInputs(event);
+                type="submit"
+                className={styles.importantButton}
+                disabled={anyErrors(errors)}
+              >
+                Submit changes
+              </button>
+            )}
+
+            <hr className={styles.hr} />
+
+            <div className={styles.finalButtons}>
+              <button
+                className={styles.button}
+                onClick={() => {
+                  navigate("/favorites");
+                  handleDetailClick();
                 }}
               >
-                Update
+                My favorites
               </button>
-            </div>
-          )}
-        </div>
 
-        <div className={styles.textContainer}>
-          <h3>Adress:</h3>
-
-          {visibleInputs.adress ? (
-            <div className={styles.propertys}>
-              <input onChange={handleChange} type="text" name="adress"></input>
               <button
-                name="adress"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleVisibleInputs(event, true);
+                className={styles.button}
+                onClick={() => {
+                  handleDetailClick();
                 }}
               >
-                x
+                My history
               </button>
             </div>
-          ) : (
-            <div className={styles.propertys}>
-              <h3 className={styles.value}>
-                {userData.adress ? userData.adress : "Unknown"}
-              </h3>
-              <button
-                name="adress"
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleVisibleInputs(event);
-                }}
-              >
-                Update
-              </button>
-            </div>
-          )}
-        </div>
-        {anyUpdatedData() && <button type="submit">Submit changes</button>}
-
-        <button onClick={onLogout}>My favorites</button>
-        <button onClick={onLogout}>My history</button>
-        <button onClick={onLogout}>Log out</button>
+          </>
+        )}
       </form>
     </div>
   );

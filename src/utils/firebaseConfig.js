@@ -10,6 +10,7 @@ import {
 import { postFindOrCreate } from "../request/clients";
 import { setUserInfoAction } from "../redux/actions";
 import { CLIENT } from "./roles";
+import { validateUpdateUser } from "./validateUpdateUser";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAACot6qy29p4K1ra6oQ_1CGVjDTbe0dsw",
@@ -58,7 +59,9 @@ export const upload = async (
 export const uploadProfilePicture = async (
   archivo,
   setUpdatedData,
-  updatedData
+  updatedData,
+  setErrors,
+  visibleInputs
 ) => {
   // crea una referencia al archivo
   const archivoRef = ref(storage, `images/${archivo.name}`);
@@ -68,7 +71,7 @@ export const uploadProfilePicture = async (
   const url = await getDownloadURL(archivoRef);
 
   setUpdatedData({ ...updatedData, image: url });
-  console.log(url);
+  setErrors(validateUpdateUser({ ...updatedData, image: url }, visibleInputs));
 };
 
 export const loginWithGoogleFirebase = async (
@@ -77,23 +80,30 @@ export const loginWithGoogleFirebase = async (
   navigate,
   locationNow
 ) => {
-  // recibe el usuario de google y lo busca/crea en la bdd
-  const response = await postFindOrCreate({
-    email: usuarioFirebase.email,
-    fullName: usuarioFirebase.displayName,
-    phone: usuarioFirebase.phoneNumber,
-    image: usuarioFirebase.photoURL,
-  });
-  const dbClient = response.data;
+  try {
+    // recibe el usuario de google y lo busca/crea en la bdd
+    const response = await postFindOrCreate({
+      email: usuarioFirebase.email,
+      fullName: usuarioFirebase.displayName,
+      phone: usuarioFirebase.phoneNumber,
+      image: usuarioFirebase.image || null,
+    });
+    const dbClient = response.data;
 
-  // setear el estado global
-  dispatch(
-    setUserInfoAction({
+    const userData = {
       id: dbClient.id,
       name: dbClient.fullName,
       email: usuarioFirebase.email,
       rol: CLIENT,
-    })
-  );
-  locationNow.pathname === "/" && navigate("/home");
+    };
+
+    localStorage.setItem("userData", JSON.stringify(userData));
+
+    // setear el estado global
+    dispatch(setUserInfoAction(userData));
+    // locationNow.pathname === "/" && navigate("/home");
+  } catch (error) {
+    navigate("/");
+    console.log(error.message);
+  }
 };
