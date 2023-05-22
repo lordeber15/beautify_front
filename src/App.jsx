@@ -12,7 +12,11 @@ import DetailPayment from "./views/detailPayment/DetailPayment";
 import DetailUser from "./views/detailUser/DetailUser";
 import Nav from "./components/nav/Nav";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllCategories, getAllProducts } from "./redux/actions";
+import {
+  getAllCategories,
+  getAllProducts,
+  setUserInfoAction,
+} from "./redux/actions";
 import useGetProducts from "./hooks/useGetProducts";
 import { useEffect } from "react";
 import useGetCategories from "./hooks/useGetCategories";
@@ -20,18 +24,19 @@ import NewProduct from "./views/newProduct/NewProduct";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import useToggle from "./hooks/useToggle";
 import { loginWithGoogleFirebase } from "./utils/firebaseConfig";
-
 import Login from "./components/login/Login";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import { CLIENT, ADMIN } from "./utils/roles";
-import axios from "axios";
-axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/";
+import AlertWarning from "./components/AlertWarning/AlertWarning";
+import Loading from "./views/loading/Loading";
+
 function App() {
   const locationNow = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [products] = useGetProducts();
   const [categories] = useGetCategories();
+  const errorState = useSelector((state) => state.errorState);
 
   // sirve para saber si el usuario no está logueado (true), se usa para prevenir que se guarde la información del usuario cuando este se está deslogueando (archivo firebaseConfig)
   const [logout, setLogout] = useToggle(true);
@@ -54,15 +59,23 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(products);
     dispatch(getAllCategories(categories));
     dispatch(getAllProducts(products));
   }, [dispatch, products, categories]);
+
+  // este useEffect trae la info del usuario desde el local Storage al estado global
+  useEffect(() => {
+    if (!userData.id) {
+      const userInfo = JSON.parse(localStorage.getItem("userData")) || {};
+      dispatch(setUserInfoAction(userInfo));
+    }
+  }, [dispatch]);
 
   // esta función se ejecuta cuando detecta un cambio en el usuario de firebase
   onAuthStateChanged(auth, async (usuarioFirebase) => {
     // las tres condiciones: hubo un cambio en la auth, el usuario recibido es de google, antes no había usuario logueado
     // la intención de estas condiciones es que sólo se ejecute la función cuando el usuario esté logueándose con Google
+
     if (
       usuarioFirebase &&
       usuarioFirebase.displayName &&
@@ -76,37 +89,24 @@ function App() {
         locationNow
       );
       setLogout(false);
-    } else if (
-      // login usuarios de mail
-      usuarioFirebase &&
-      !usuarioFirebase.displayName &&
-      !userData.email &&
-      !creatingAccount
-    ) {
-      //! esto trae muchas alertas en la consola cuando se crea un usuario, podríamos eliminar este else if
-      // const userCreated = await getClient(usuarioFirebase.email);
-      // // envía esa info al estado global
-      // if (userCreated.data) {
-      //   dispatch(
-      //     setUserInfoAction({
-      //       id: userCreated.data.id,
-      //       name: userCreated.data.fullName,
-      //       rol: CLIENT,
-      //     })
-      //   );
-      // }
+      if (locationNow.pathname === "/loading") navigate("/home");
     }
   });
 
   return (
     <div className="App">
-      {locationNow.pathname !== "/" && (
+      {locationNow.pathname !== "/" && locationNow.pathname !== "/loading" && (
         <Nav
           handleLoginClick={handleLoginClick}
           handleDetailClick={handleDetailClick}
         />
       )}
-
+      {errorState.tittle && (
+        <AlertWarning
+          tittleAlert={errorState.tittle}
+          messageAlert={errorState.message}
+        />
+      )}
       {loginVisible && (
         <Login
           loginVisible={loginVisible}
@@ -135,6 +135,7 @@ function App() {
             />
           }
         />
+        <Route path="/loading" element={<Loading />} />
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/products" element={<Products />} />

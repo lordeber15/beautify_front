@@ -4,12 +4,13 @@ import SearchBar from "../../components/searchBar/SearchBar";
 import Filter from "../../components/filter/Filter";
 import Order from "../../components/order/Order";
 import styles from "./products.module.css";
+import Footer from "../../components/footerAll/FooterAll";
 
 function Products() {
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState({
     category: "all",
-    price: [1, 1000],
+    price: [4, 95],
   });
   const [ordered, setOrdered] = useState("");
 
@@ -20,19 +21,19 @@ function Products() {
         setOrdered={setOrdered}
         setCurrentPage={setCurrentPage}
       />
-      <div style={{display:'flex', height:'100%'}}>
-      <div className={styles.Sidebar}>
-
-      <Filter filter={filter} setFilter={setFilter} />
-      <Order ordered={ordered} setOrdered={setOrdered} />
+      <div style={{ display: "flex", height: "100%" }}>
+        <div className={styles.Sidebar}>
+          <Filter filter={filter} setFilter={setFilter} />
+          <Order ordered={ordered} setOrdered={setOrdered} />
+        </div>
+        <div className={styles.containerPaginations}>
+          <Paginations
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
       </div>
-      <div className={styles.containerPaginations}>
-        <Paginations
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
-      </div>
-      </div>
+      <Footer />
     </section>
   );
 }
