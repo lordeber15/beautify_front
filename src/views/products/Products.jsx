@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { unsetFavorites } from "../../redux/actions";
 import Footer from "../../components/footerAll/FooterAll";
 
-
 function Products() {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
