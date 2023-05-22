@@ -36,6 +36,7 @@ import Favorites from "./views/favorites/Favorites";
 import { getFavorites } from "./request/favorites";
 import Checkout from "./views/Checkout/Checkout";
 import PurchaseError from "./views/purchaseError/PurchaseError";
+import axios from "axios";
 
 axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/"; 
 
