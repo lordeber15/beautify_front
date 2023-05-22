@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 export const getProductByName = async (searched) => {
     try {
         return await axios.get(`/products?name=${searched}`)

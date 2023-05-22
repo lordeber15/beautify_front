@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { getProducts } from "../request/product";
 
 const useGetProducts = () => {
 
     const [data, setData] = useState([]);
-    const getProducts = () => {
+    const getProductsBack = () => {
         axios
-            .get(`/products`)
+        getProducts()
             .then((res) => {
                 setData(res.data);
             })
@@ -15,7 +15,7 @@ const useGetProducts = () => {
     };
 
     useEffect(() => {
-        getProducts();
+        getProductsBack();
     }, []);
 
     return [data];
