@@ -1,5 +1,5 @@
 import comparePrice from "../utils/filterProducts";
-import { ADMIN, INVITED, CLIENT } from "../utils/roles";
+import { INVITED } from "../utils/roles";
 import {
   GET_ALL_PRODUCTS,
   SEARCH_PRODUCT_BY_NAME,
@@ -9,11 +9,18 @@ import {
   CREATE_PRODUCT,
   SET_USER_INFO,
   LOGOUT,
+  SHOW_ERROR,
+  CLEAR_ERROR,
+  SET_FAVORITES,
+  UNSET_FAVORITES,
+  RESET_FILTERS_ORDER,
+  GET_BACKUP_PRODUCTS,
 } from "./actions";
 
 const initialState = {
   allProducts: [],
   copyAllProducts: [],
+  backupProducts: [],
   allCategories: [],
   allServices: [],
   allProfessionals: [],
@@ -23,6 +30,11 @@ const initialState = {
     email: null,
     rol: INVITED,
   },
+  errorState: {
+    tittle: null,
+    message: null,
+  },
+  oldLocation: null,
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -32,11 +44,18 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         allProducts: [...action.payload],
         copyAllProducts: [...action.payload],
+        backupProducts: [...action.payload],
       };
+
+    case GET_BACKUP_PRODUCTS:
+      return {
+        ...state,
+        backupProducts: [...action.payload],
+      };
+
     case SEARCH_PRODUCT_BY_NAME:
       return {
         ...state,
-        allProducts: [...action.payload],
         copyAllProducts: [...action.payload],
       };
     //Create product
@@ -124,6 +143,45 @@ const rootReducer = (state = initialState, action) => {
           email: null,
           rol: INVITED,
         },
+      };
+    //Errors
+    case SHOW_ERROR:
+      return {
+        ...state,
+        errorState: {
+          tittle: action.payload.tittle,
+          message: action.payload.message,
+        },
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        errorState: {
+          tittle: null,
+          message: null,
+        },
+      };
+
+    // favorites
+    case SET_FAVORITES:
+      return {
+        ...state,
+        allProducts: [...action.payload],
+        copyAllProducts: [...action.payload],
+      };
+
+    case UNSET_FAVORITES:
+      return {
+        ...state,
+        allProducts: [...action.payload],
+        copyAllProducts: [...action.payload],
+      };
+
+    case RESET_FILTERS_ORDER:
+      return {
+        ...state,
+        allProducts: [...action.payload],
+        copyAllProducts: [...action.payload],
       };
 
     default:

@@ -1,13 +1,13 @@
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import useToggle from "../../hooks/useToggle";
 import { googleProvider } from "../../utils/firebaseConfig";
 import ErrorInputMessage from "../../components/errorInputMessage/ErrorInputMessage";
 import handleSubmitLogin from "../../handlers/handleSubmitLogin";
 import { getAuth, signInWithRedirect } from "firebase/auth";
 import validateCreateUser from "../../utils/validateCreateUser";
-import styles from "../../views/landing/Landing.module.css";
+import styles from "./Login.module.css";
+import GoogleIcon from "../../assets/images/GoogleIconColored.png";
 
 const Login = ({
   loginVisible,
@@ -42,11 +42,19 @@ const Login = ({
 
   const loginWithGoogle = async () => {
     try {
+      localStorage.setItem("oldLocation", JSON.stringify(location.pathname));
+      navigate("/loading");
       await signInWithRedirect(auth, googleProvider);
+      setCreatingAccount(false);
     } catch (error) {
       window.alert(error.message);
       console.log(error.message);
     }
+  };
+
+  const handleClose = () => {
+    handleLoginClick();
+    creatingAccount && setCreatingAccount(false);
   };
 
   return (
@@ -58,7 +66,7 @@ const Login = ({
             : { display: "none", transition: "400ms" }
         }
         className={styles.overlay}
-        onClick={handleLoginClick}
+        onClick={handleClose}
       ></div>
       <form
         onSubmit={(e) => {
@@ -69,12 +77,12 @@ const Login = ({
             creatingAccount,
             navigate,
             location,
-            handleLoginClick
+            handleLoginClick,
+            setCreatingAccount,
+            userInfo
           );
         }}
-        className={
-          location.pathname !== "/" ? styles.Container : styles.landingContainer
-        }
+        className={styles.loginContainer}
       >
         <div
           className={styles.LoginForm}
@@ -84,7 +92,7 @@ const Login = ({
               : { display: "none", transition: "400ms" }
           }
         >
-          <button className={styles.closeButton} onClick={handleLoginClick}>
+          <button className={styles.closeButton} onClick={handleClose}>
             x
           </button>
           <h4>Welcome</h4>
@@ -98,6 +106,21 @@ const Login = ({
                 placeholder="Name"
                 className="Username"
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSubmitLogin(
+                      e,
+                      dispatch,
+                      setUserInfo,
+                      creatingAccount,
+                      navigate,
+                      location,
+                      handleLoginClick,
+                      setCreatingAccount,
+                      userInfo
+                    );
+                  }
+                }}
               />
             )}
             <ErrorInputMessage errors={errors.email} text={errors.name} />
@@ -108,6 +131,21 @@ const Login = ({
               placeholder="email@example.com"
               className="Username"
               onChange={handleChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSubmitLogin(
+                    e,
+                    dispatch,
+                    setUserInfo,
+                    creatingAccount,
+                    navigate,
+                    location,
+                    handleLoginClick,
+                    setCreatingAccount,
+                    userInfo
+                  );
+                }
+              }}
             />
             <ErrorInputMessage errors={errors.email} text={errors.email} />
             <input
@@ -117,6 +155,21 @@ const Login = ({
               placeholder="Password"
               className="Password"
               onChange={handleChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSubmitLogin(
+                    e,
+                    dispatch,
+                    setUserInfo,
+                    creatingAccount,
+                    navigate,
+                    location,
+                    handleLoginClick,
+                    setCreatingAccount,
+                    userInfo
+                  );
+                }
+              }}
             />
             <ErrorInputMessage
               errors={errors.password}
@@ -134,45 +187,43 @@ const Login = ({
           >
             {creatingAccount ? "Register" : "Login"}
           </button>
+          <div style={{ display: "flex", marginBottom: "0.5rem" }}>
+            <p style={{ fontSize: "large" }}>
+              {creatingAccount ? "Already a member?" : "Not a member?"}
+            </p>
+            <button
+              className={styles.BotonSwitch}
+              onClick={(e) => {
+                e.preventDefault();
+                !creatingAccount
+                  ? setErrors({
+                      ...errors,
+                      name: userInfo.name.length ? "" : "Name required",
+                    })
+                  : setErrors({ ...errors, name: "" });
+                setCreatingAccount(!creatingAccount);
+              }}
+            >
+              <p
+                style={{ color: "#d14d72", fontSize: "large" }}
+                className={styles.Switch}
+              >
+                {creatingAccount ? "Log in" : "Register"}
+              </p>
+            </button>
+          </div>
           <button
-            className={styles.BotonLogin}
+            className={styles.BotonGoogle}
             onClick={(e) => {
               e.preventDefault();
-              !creatingAccount
-                ? setErrors({
-                    ...errors,
-                    name: userInfo.name.length ? "" : "Name required",
-                  })
-                : setErrors({ ...errors, name: "" });
-              setCreatingAccount(!creatingAccount);
-            }}
-          >
-            {creatingAccount
-              ? "You are already a member?"
-              : "You are not a member?"}
-          </button>
-
-          <button
-            className={styles.BotonLogin}
-            onClick={(e) => {
-              e.preventDefault();
+              handleLoginClick();
               loginWithGoogle();
             }}
           >
-            Google
+            <p>Log in with Google</p>
+            <img src={GoogleIcon} />
           </button>
         </div>
-        {/* {createdUser && (
-          <Stack
-            sx={{ width: "300px", position: "absolute", bottom: 10, right: 10 }}
-            spacing={2}
-          >
-            <Alert severity="success">
-              <AlertTitle>Success</AlertTitle>
-              User <strong>created</strong>
-            </Alert>
-          </Stack>
-        )} */}
       </form>
     </>
   );
