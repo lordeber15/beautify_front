@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 export const getFavorites = async (clientId) => {
   try {
     return await axios.get(`/favorites/${clientId}`);
@@ -32,7 +33,7 @@ export const createFavorite = async (clientId, productId) => {
 
 export const deleteFavorite = async (clientId, productId) => {
   try {
-    await axios.delete(`${URL_BASE}/favorites/${clientId}/${productId}`, {
+    await axios.delete(`/favorites/${clientId}/${productId}`, {
       clientId,
       productId,
     });
