@@ -37,7 +37,7 @@ import { getFavorites } from "./request/favorites";
 import Checkout from "./views/Checkout/Checkout";
 import PurchaseError from "./views/purchaseError/PurchaseError";
 
-/* axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/"; */
+axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/"; 
 
 function App() {
   const locationNow = useLocation();
