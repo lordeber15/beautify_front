@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 export const createNewClient = async (clientData) => {
   try {
     return await axios.post(`/client/findOrCreate`, clientData);
