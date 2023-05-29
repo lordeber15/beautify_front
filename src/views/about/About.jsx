@@ -1,19 +1,22 @@
 import styles from "./About.module.css";
-import Footer from "../../components/footerAll/FooterAll";
 
 function About() {
   return (
     <div className={styles.Container}>
       <div className={styles.QuienesSomos}>
-        <p>¿Quiénes somos?</p>
+        <h1>about us?</h1>
         <p>
-          {" "}
-          es una plataforma que conecta millones de clientes y clientas con el
-          fin de otorgar la mejor atencion en distribucion y prestacion de
-          servicios referentes a manicura y cuidado personal femenino.
+          In <strong>Beautify</strong>, we are a company dedicated to offering
+          high-quality beauty products and services. We take pride in being a
+          reference in the cosmetics industry, providing our customers with a
+          wide range of products and services that help enhance their beauty and
+          confidence. Our mission is to provide innovative and effective beauty
+          solutions that meet the individual needs of each customer. We are
+          committed to carefully selecting the best products in the market,
+          working with recognized brands and quality formulations to ensure
+          exceptional results.
         </p>
       </div>
-      <Footer></Footer>
     </div>
   );
 }

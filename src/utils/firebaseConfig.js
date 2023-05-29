@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import { postFindOrCreate } from "../request/clients";
 import { setUserInfoAction } from "../redux/actions";
-import { CLIENT } from "./roles";
+import { ADMIN, CLIENT } from "./roles";
 import { validateUpdateUser } from "./validateUpdateUser";
 
 const firebaseConfig = {
@@ -71,35 +71,48 @@ export const uploadProfilePicture = async (
   const url = await getDownloadURL(archivoRef);
 
   setUpdatedData({ ...updatedData, image: url });
-  setErrors(validateUpdateUser({ ...updatedData, image: url }, visibleInputs));
-  // console.log(url);
+  setErrors(
+    validateUpdateUser(
+      { ...updatedData, image: url },
+      visibleInputs,
+      updatedData
+    )
+  );
 };
 
 export const loginWithGoogleFirebase = async (
   usuarioFirebase,
   dispatch,
   navigate,
-  locationNow
+  locationNow 
 ) => {
-  // recibe el usuario de google y lo busca/crea en la bdd
-  const response = await postFindOrCreate({
-    email: usuarioFirebase.email,
-    fullName: usuarioFirebase.displayName,
-    phone: usuarioFirebase.phoneNumber,
-    image: usuarioFirebase.image || null,
-  });
-  const dbClient = response.data;
+  try {
+    // recibe el usuario de google y lo busca/crea en la bdd
+    const response = await postFindOrCreate({
+      email: usuarioFirebase.email,
+      fullName: usuarioFirebase.displayName,
+      phone: usuarioFirebase.phoneNumber,
+      image: usuarioFirebase.image || null,
+    });
+    const dbClient = response.data;
 
-  const userData = {
-    id: dbClient.id,
-    name: dbClient.fullName,
-    email: usuarioFirebase.email,
-    rol: CLIENT,
-  };
+    const userData = {
+      id: dbClient.id,
+      name: dbClient.fullName,
+      email: usuarioFirebase.email,
+      rol: CLIENT,
+    };
 
-  localStorage.setItem("userData", JSON.stringify(userData));
+    if (userData.email === "beautifyfinalproyect@gmail.com")
+      userData.rol = ADMIN;
 
-  // setear el estado global
-  dispatch(setUserInfoAction(userData));
-  locationNow.pathname === "/" && navigate("/home");
+    localStorage.setItem("userData", JSON.stringify(userData));
+
+    // setear el estado global
+    dispatch(setUserInfoAction(userData));
+     locationNow.pathname === "/" && navigate("/home");
+  } catch (error) {
+    navigate("/");
+    console.log(error.message);
+  }
 };

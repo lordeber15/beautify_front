@@ -2,6 +2,7 @@ import { useDispatch } from "react-redux";
 import { Stack, Rating, Skeleton } from "@mui/material";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import styles from "./DetailProduct.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -14,23 +15,38 @@ import SectionCards from "../../components/sectionCards/SectionCards";
 import AlertAddCart from "../../components/alertAddCart/AlertAddCart";
 import useToggle from "../../hooks/useToggle";
 import { showError } from "../../redux/actions";
+import { createFavorite, getFavorites } from "../../request/favorites";
+import AlertFavorite from "../../components/alertFavorite/AlertFavorite";
+import Reviews from "../../components/reviews/Reviews";
+import { deleteFavorite } from "../../request/favorites";
 
 function DetailProduct({ handleLoginClick }) {
-
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const [errorQuantity, setErrorQuantity] = useState(false);
   const dispatch = useDispatch();
   const { id } = useParams();
   const [product, setProduct] = useState({});
   const userData = useSelector((state) => state.userData);
   const allProducts = useSelector((state) => state.allProducts);
   const [addProduct, setAddProduct] = useToggle(false);
+  const [addedFavorite, setAddedFavorite] = useToggle(false);
+  const [removedFavorite, setRemovedFavorite] = useToggle(false);
+  const [userFavorites, setUserFavorites] = useState([]);
+
   const handleQuantity = (event) => {
     setQuantity(Number(event.target.value));
+    //Se controla que la cantidad ingresada no sea mayor a la cantidad de stock disponible
+    if (Number(event.target.value) > stock) {
+      setErrorQuantity(true);
+      return;
+    } else {
+      setErrorQuantity(false);
+    }
   };
 
   const handleAddToCart = (e) => {
-
+    if (errorQuantity) return;
     if (!userData.id) return handleLoginClick();
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const productExist = cart.find((cartItem) => cartItem.id == product.id);
@@ -58,25 +74,34 @@ function DetailProduct({ handleLoginClick }) {
     else {
       setAddProduct(true);
       cart.push({
-        category: product.category,
+        // category: product.category,
         description: product.description,
         discount: product.discount,
         id: product.id,
         image: product.image,
         name: product.name,
         price: product.price,
-        rate: product.rate,
+        quantity: quantity,
+        // rate: product.rate,
         state: product.state,
         stock: product.stock,
-        quantity: quantity,
       });
     }
     localStorage.setItem("cart", JSON.stringify(cart));
     if (e.target.name === "buyNow") navigate("/cart");
   };
 
-  const handleFavorite = () => {
-    if (!userData.id) handleLoginClick();
+  const handleFavorite = async () => {
+    if (!userData.id) return handleLoginClick();
+    const added = await createFavorite(userData.id, id);
+    if (added) {
+      setAddedFavorite(true);
+      setUserFavorites([...userFavorites, Number(id)]);
+    } else {
+      setRemovedFavorite(true);
+      await deleteFavorite(userData.id, id);
+      setUserFavorites(userFavorites.filter((fav) => fav !== Number(id)));
+    }
   };
 
   useEffect(() => {
@@ -84,19 +109,35 @@ function DetailProduct({ handleLoginClick }) {
       getProductById(id).then((res) => {
         setProduct(res.data);
       });
+      const clientId = JSON.parse(localStorage.getItem("userData"))?.id;
+      clientId &&
+        getFavorites(clientId).then((res) => {
+          const favoritesIds = res.data.map(({ id }) => id);
+          setUserFavorites(favoritesIds);
+        });
     } catch (error) {
       console.log(error.message);
     }
     return setProduct({});
   }, [id]);
-  const { name, image, description, price, stock, rate, discount } = product;
+  const {
+    name,
+    image,
+    description,
+    price,
+    stock,
+    rate,
+    discount,
+    comments,
+  } = product;
   return (
     <div className={styles.aux}>
       <div className={styles.container}>
         <div className={styles.containerBack}>
-          <button 
+          <button
             className={styles.backButton}
             onClick={() => history.back()}
+            style={{ zIndex: 1 }}
           >
             <ArrowBackIosNewIcon />
           </button>
@@ -156,13 +197,16 @@ function DetailProduct({ handleLoginClick }) {
               max={stock}
               defaultValue="1"
             />
-            <label className={styles.shopMax}>Max 5</label>
+            {errorQuantity && (
+              <span>Error: max quantity available {stock}</span>
+            )}
+            <label className={styles.shopMax}>Max {stock}</label>
             {/* <Link to="/cart"> */}
             <button
               onClick={handleAddToCart}
               name="buyNow"
               className={styles.btnShopNow}
-              type="submit"
+              // type="submit"
             >
               Buy now
             </button>
@@ -177,7 +221,11 @@ function DetailProduct({ handleLoginClick }) {
                 <ShoppingCartOutlinedIcon /> Add to cart
               </button>
               <button className={styles.listWish} onClick={handleFavorite}>
-                <FavoriteBorderIcon />
+                {userFavorites.includes(Number(id)) ? (
+                  <FavoriteIcon style={{ fill: "#d14d72" }} />
+                ) : (
+                  <FavoriteBorderIcon />
+                )}
                 Favorite
               </button>
             </div>
@@ -192,8 +240,23 @@ function DetailProduct({ handleLoginClick }) {
           isCategory={true}
         />
       )}
+      <Reviews comments={comments} rate={rate} />
       {addProduct && (
         <AlertAddCart setAddProduct={setAddProduct} addProduct={addProduct} />
+      )}
+      {removedFavorite && (
+        <AlertFavorite
+          parametroTrue={removedFavorite}
+          setParametroTrue={setRemovedFavorite}
+          message={"Product removed from favorites"}
+        />
+      )}
+      {addedFavorite && (
+        <AlertFavorite
+          parametroTrue={addedFavorite}
+          setParametroTrue={setAddedFavorite}
+          message={"Product added to favorites"}
+        />
       )}
     </div>
   );

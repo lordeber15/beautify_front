@@ -1,18 +1,20 @@
 import styles from "./Cart.module.css";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-// import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-// import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import axios from "axios";
 import { useState, useEffect } from "react";
-import { Wallet, initMercadoPago } from "@mercadopago/sdk-react";
+import { initMercadoPago } from "@mercadopago/sdk-react";
 import { useDispatch, useSelector } from "react-redux";
 import { showError } from "../../redux/actions";
+
 // import Footer from "../../components/footerAll/FooterAll";
 
-initMercadoPago("TEST-e111adff-51c1-4945-a5fa-3a3adfb6f8b1");
+import askPreference from "../../request/preference";
+import AlertDialogSlide from "../../components/slideDialog/slideDialog";
+
+initMercadoPago("TEST-6baebe46-f407-406f-8011-2f812f18a2a3");
 
 function Cart() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [cart, setCart] = useState([]);
   //*** validar el carrito
@@ -22,8 +24,7 @@ function Cart() {
     totalPrice += (cart[i].price - cart[i].discount) * cart[i].quantity;
   }
 
-  const handleDelete = (event) => {
-    const id = Number(event.target.value);
+  const handleDelete = (id) => {
     const newCart = cart.filter((cartItem) => cartItem.id != id);
     localStorage.setItem("cart", JSON.stringify(newCart));
     setCart(newCart);
@@ -52,6 +53,24 @@ function Cart() {
     setCart(newCart);
   };
 
+  const [openCheckoutDialog, setOpenCheckoutDialog] = useState(false);
+  const handleClickOpenCheckoutDialog = () => {
+    setOpenCheckoutDialog(true);
+  };
+  const handleCloseCheckoutDialog = () => {
+    setOpenCheckoutDialog(false);
+  };
+
+  const [itemToDelete, setItemToDelete] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const handleClickOpenDeleteDialog = (e) => {
+    setItemToDelete(Number(e.target.value));
+    setOpenDeleteDialog(true);
+  };
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+  };
+
   useEffect(() => {
     const cartData = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(cartData);
@@ -67,13 +86,14 @@ function Cart() {
       id: element.id,
     };
   });
-  const [preferenceId, setPreferenceId] = useState(0);
 
   const handleCheckOut = () => {
     let aux = [...carrito, emailUsuario];
-    axios
-      .post("http://localhost:3001/mercadopago/create_preference", aux)
-      .then(({ data }) => setPreferenceId(data.id))
+    askPreference(aux)
+      .then(({ data }) =>
+        localStorage.setItem("preference", JSON.stringify(data.id))
+      )
+      .then(navigate("/checkout"))
       .catch((error) => {
         console.log(error.message);
         dispatch(
@@ -100,96 +120,91 @@ function Cart() {
             You have {cantArticulos} items in your cart
           </label>
         </div>
-        <label className={styles.txtCarrito}>Total price $ {totalPrice}</label>
+        <label className={styles.txtCarrito}>
+          Total price $ {totalPrice.toFixed(2)}
+        </label>
         {cart.map((cartItem) => (
           <div key={cartItem.id} className={styles.articulo}>
-            <div className={styles.imagenArticulo}>
-              <img src={cartItem.image} />
-            </div>
-            <div className={styles.detallesArticulo}>
-              <label className={styles.nameProduct}>{cartItem.name}</label>
-              <label className={styles.descriptionProduct}>
-                {cartItem.description.slice(0, 60)}...
-              </label>
-            </div>
-            <div className={styles.cantidad}>
-              <div className={styles.btnupdown}>
-                {/* <ArrowDropUpIcon /> */}
-                <button onClick={handleQuantity} name="add" value={cartItem.id}>
-                  +
-                </button>
-                <label>{cartItem.quantity}</label>
-                <button
-                  onClick={handleQuantity}
-                  name="less"
-                  value={cartItem.id}
-                >
-                  -
-                </button>
-                {/* <ArrowDropDownIcon /> */}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div
+                className={styles.imagenArticulo}
+                style={{ marginRight: "10px" }}
+              >
+                <Link to={`/detailProduct/${cartItem.id}`}>
+                  <img src={cartItem.image} />
+                </Link>
+              </div>
+              <div className={styles.detallesArticulo}>
+                <label className={styles.nameProduct}>{cartItem.name}</label>
+                <label className={styles.descriptionProduct}>
+                  {cartItem.description.slice(0, 50)}...
+                </label>
               </div>
             </div>
-            <div className={styles.precio}>
-              $ {cartItem.price - cartItem.discount}
+            <div className={styles.botonesArticulo}>
+              <div className={styles.cantidad} style={{ marginRight: "10px" }}>
+                <div className={styles.btnupdown}>
+                  <button
+                    disabled={cartItem.quantity === cartItem.stock}
+                    className={styles.btnCart}
+                    onClick={handleQuantity}
+                    name="add"
+                    value={cartItem.id}
+                  >
+                    +
+                  </button>
+                  <h3 className={styles.cantidadProduct}>
+                    {cartItem.quantity}
+                  </h3>
+                  <button
+                    disabled={cartItem.quantity === 1}
+                    className={styles.btnCart}
+                    onClick={handleQuantity}
+                    name="less"
+                    value={cartItem.id}
+                  >
+                    -
+                  </button>
+                </div>
+              </div>
+              <div className={styles.precio}>
+                $ {cartItem.price - cartItem.discount}
+              </div>
+              <button
+                className={styles.btnDelete}
+                onClick={handleClickOpenDeleteDialog}
+                value={cartItem.id}
+              ></button>
             </div>
-            <button onClick={handleDelete} value={cartItem.id}>
-              delete
-            </button>
           </div>
         ))}
+        {cantArticulos > 0 && (
+          <button
+            className={styles.checkout}
+            onClick={handleClickOpenCheckoutDialog}
+          >
+            Checkout
+          </button>
+        )}
       </div>
-      <button onClick={handleCheckOut}> CHECKOUT PROVISORIO</button>
-      <Wallet initialization={{ preferenceId: `${preferenceId}` }} />
+      <AlertDialogSlide
+        handleCloseDialog={handleCloseDeleteDialog}
+        openDialog={openDeleteDialog}
+        yesCallback={() => {
+          handleDelete(itemToDelete);
+          handleCloseDeleteDialog();
+        }}
+        questionText={"Are you sure you wanna remove that item from your card?"}
+      />
 
-      {/* <div className={styles.detallesCompra}>
-        <div className={styles.detallesPago}>
-          <label className={styles.textTarjeta}>Detalles de tarjeta</label>
-          <label className={styles.tipoTarjeta}>Tipo de Pago</label>
-          <div className={styles.imagenMercadoPago}>
-            <img src={mercadopago} alt="Mercado Pago" />
-          </div>
-        </div>
-        <div className={styles.containerDatos}>
-          <div className={styles.datosTarjeta}>
-            <label className={styles.nombreTarjeta}>Nombre de la Tarjeta</label>
-            <input type="text" placeholder="Nombre" />
-          </div>
-          <div className={styles.datosTarjeta}>
-            <label className={styles.nombreTarjeta}>Numero de Tarjeta</label>
-            <input type="number" placeholder="1111111-2222--33333" />
-          </div>
-          <div className={styles.containerdata}>
-            <div className={styles.fechaTarjeta}>
-              <label>Fecha de Expiracion</label>
-              <input type="month" />
-            </div>
-            <div className={styles.cvv}>
-              <label>CVV</label>
-              <input type="number" placeholder="CVV" maxLength={4} />
-            </div>
-          </div>
-        </div>
-        <div className={styles.datosPagos}>
-          <div className={styles.text}>
-            <label>Subtotal</label>
-            <label>$1,072</label>
-          </div>
-          <div className={styles.text}>
-            <label>Envio</label>
-            <label>$4</label>
-          </div>
-          <div className={styles.text}>
-            <label>Total (igv incl.)</label>
-            <label>$1,072</label>
-          </div>
-        </div>
-        <div className={styles.total}>
-          <label>$1,076</label>
-          <button>Verificar</button>
-        </div>
-      </div> */}
+      <AlertDialogSlide
+        handleCloseDialog={handleCloseCheckoutDialog}
+        openDialog={openCheckoutDialog}
+        yesCallback={handleCheckOut}
+        questionText={"Are you sure you wanna proceed to purchase?"}
+      />
     </div>
   );
 }
 
-export default Cart;
+export default Cart

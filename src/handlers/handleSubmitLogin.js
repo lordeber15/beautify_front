@@ -1,7 +1,8 @@
 import { createUserWithMail, singUpWithMail } from "../utils/firebaseConfig";
 import { createNewClient, getClient } from "../request/clients";
+import { getCart} from "../request/cart"
 import { setUserInfoAction, showError } from "../redux/actions";
-import { CLIENT } from "../utils/roles";
+import { ADMIN, CLIENT } from "../utils/roles";
 
 const handleSubmitLogin = async (
   e,
@@ -21,7 +22,6 @@ const handleSubmitLogin = async (
   const oldLocation = location.pathname;
   navigate("/loading");
 
-
   const name = userInfo.name;
   const password = userInfo.password;
   const email = userInfo.email;
@@ -30,18 +30,14 @@ const handleSubmitLogin = async (
   try {
     // distinga si estamos creando una cuenta o haciendo el login
     if (creatingAccount) {
+      setCreatingAccount(false);
+
       //* creamos el usuario en firebase
       await createUserWithMail(email, password);
       const createUser = {
         fullName: name,
         email: email,
-        // password: response.user.reloadUserInfo.passwordHash,
       };
-
-      // corroboramos que el usuario no exista en la base de datos
-      if (location.pathname === "/") navigate("/home");
-      // const oldUser = await getClient(createUser.email);
-      // if (oldUser) throw Error("User alredy exists in database");
 
       // crea el usuario en la base de datos
       const userCreated = await createNewClient(createUser);
@@ -52,20 +48,22 @@ const handleSubmitLogin = async (
         email: createUser.email,
         rol: CLIENT,
       };
+      if (userData.email === "beautifyfinalproyect@gmail.com")
+        userData.rol = ADMIN;
 
+      //Guarda el el local la info del usuario creado e inicializa el carrito
       localStorage.setItem("userData", JSON.stringify(userData));
-      JSON.parse(localStorage.getItem("userData"));
+      localStorage.setItem("cart", JSON.stringify([]));
 
       dispatch(setUserInfoAction(userData));
-
-      // handleLoginClick();
-      setCreatingAccount(false);
     } else {
       // se loguea en firebase
       await singUpWithMail(email, password);
 
-      // trae la info del usuario de la base de datos
+      // trae la info del usuario y de su carrito de la base de datos
       const userCreated = await getClient(email);
+      const cartSaved = await getCart(userCreated.data.id); //*el back si no tiene un carrito devuelve undefined
+      const userCart = !cartSaved ? [] : cartSaved.data
 
       const userData = {
         id: userCreated.data.id,
@@ -74,15 +72,20 @@ const handleSubmitLogin = async (
         rol: CLIENT,
       };
 
-      localStorage.setItem("userData", JSON.stringify(userData));
-      JSON.parse(localStorage.getItem("userData"));
+      //Guarda el el local la info del usuario y del carrito
+      if (userData.email === "beautifyfinalproyect@gmail.com")
+        userData.rol = ADMIN;
 
-      // envía esa info al estado global
+      localStorage.setItem("userData", JSON.stringify(userData));
+      localStorage.setItem("cart", JSON.stringify(userCart));
+
+      // envía esa info del usuario al estado global
       dispatch(setUserInfoAction(userData));
     }
     if (oldLocation === "/") navigate("/home");
     else navigate(oldLocation);
   } catch (error) {
+    navigate(oldLocation);
     // mensajes de error personalizados
     const ingresaConGooglePelotudo = "Firebase: Error (auth/wrong-password).";
     const userNotFound = "Firebase: Error (auth/user-not-found).";
