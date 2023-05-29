@@ -15,9 +15,14 @@ import Phone from "../../components/detailUserForm/phone";
 import Adress from "../../components/detailUserForm/adress";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+import AlertFavorite from "../../components/alertFavorite/AlertFavorite";
+import { getFavorites } from "../../request/favorites";
+import getProductsCategorie from "../../utils/getProductsCategorie";
+import { getCart, postCart } from "../../request/cart";
 
 function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
   const globalUserData = useSelector((state) => state.userData);
+
   const auth = getAuth(firebaseApp);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -38,8 +43,21 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
 
   const onLogout = async () => {
     setLogout(false);
-    // mandar al back la info del carrito
-    await getProductById(1); // esta petición es cualquier cosa, pero necesito el await. Va a ser reemplazada por la petición que guarda el carrito
+    // trae información del carrito y el id de usuario del local
+    const localCart = JSON.parse(localStorage.getItem("cart"));
+    const userId = JSON.parse(localStorage.getItem("userData")).id;
+
+    if (localCart.length) {
+      // acomoda la info del cart local para mandar al back sólo id y quantity de cada producto
+      const products = localCart.map((product) => ({
+        id: product.id,
+        quantity: product.quantity,
+      }));
+      // mandar al back la info del carrito
+      await postCart(userId, { products });
+    } else await postCart(userId, { products: [] });
+
+    // await getProductById(1); // esta petición es cualquier cosa, pero necesito el await. Va a ser reemplazada por la petición que guarda el carrito
     localStorage.clear();
     handleDetailClick();
     dispatch(logout());
@@ -49,6 +67,12 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
 
   useEffect(() => {
     getDataFromDb(globalUserData.email);
+    const clientId = JSON.parse(localStorage.getItem("userData"))?.id;
+    clientId &&
+      getFavorites(clientId).then((res) => {
+        const favoritesIds = res.data.map(({ id }) => id);
+        setUserFavorites(favoritesIds);
+      });
   }, []);
 
   const initialState = {
@@ -61,17 +85,26 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
   };
 
   const [userData, setUserData] = useState(initialState);
-
   const [updatedData, setUpdatedData] = useState(initialState);
-
   const [errors, setErrors] = useState(initialState);
 
   const [visibleInputs, setVisibleInputs] = useState(initialState);
+  const [noFavoritesAlert, setNoFavoritesAlert] = useState(false);
+  const [userFavorites, setUserFavorites] = useState([]);
 
   const anyUpdatedData = () => {
     for (const property in updatedData) {
       if (visibleInputs[property]) return true;
     }
+  };
+
+  const favoritesButton = () => {
+    if (userFavorites.length) {
+      navigate("/favorites");
+      handleDetailClick();
+      return;
+    }
+    setNoFavoritesAlert(true);
   };
 
   const handleSubmit = async (event) => {
@@ -98,7 +131,11 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
     const value = event.target.value;
     setUpdatedData({ ...updatedData, [property]: value });
     setErrors(
-      validateUpdateUser({ ...updatedData, [property]: value }, visibleInputs)
+      validateUpdateUser(
+        { ...updatedData, [property]: value },
+        visibleInputs,
+        userData
+      )
     );
   };
 
@@ -207,13 +244,7 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
             <hr className={styles.hr} />
 
             <div className={styles.finalButtons}>
-              <button
-                className={styles.button}
-                onClick={() => {
-                  navigate("/favorites");
-                  handleDetailClick();
-                }}
-              >
+              <button className={styles.button} onClick={favoritesButton}>
                 My favorites
               </button>
 
@@ -221,12 +252,21 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
                 className={styles.button}
                 onClick={() => {
                   handleDetailClick();
+                  navigate("/userHistory");
                 }}
               >
                 My history
               </button>
             </div>
           </>
+        )}
+
+        {noFavoritesAlert && (
+          <AlertFavorite
+            parametroTrue={noFavoritesAlert}
+            setParametroTrue={setNoFavoritesAlert}
+            message={"You have no favorites"}
+          />
         )}
       </form>
     </div>

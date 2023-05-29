@@ -184,7 +184,7 @@
   justify-self: center;
 }
 
-input {
+.container input {
   margin: 2% 0%;
   height: 2rem;
   width: 100%;
@@ -287,6 +287,9 @@ input {
 
 .imageInputError {
   color: rgb(97, 3, 3);
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
 .inputDiv {
   position: relative;
