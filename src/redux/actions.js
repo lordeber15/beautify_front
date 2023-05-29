@@ -21,6 +21,8 @@ export const SET_FAVORITES = "SET_FAVORITES";
 export const UNSET_FAVORITES = "UNSET_FAVORITES";
 export const GET_BACKUP_PRODUCTS = "GET_BACKUP_PRODUCTS";
 
+//Appointments
+export const ADD_APPOINTMENT = "ADD_APPOINTMENT";
 
 /* Actions */
 
@@ -119,5 +121,15 @@ export const resetFiltersOrder = (products) => {
   return {
     type: RESET_FILTERS_ORDER,
     payload: products,
+  };
+};
+
+
+//appoiments
+
+export const addAppointment = (reservation) => {
+  return {
+    type: ADD_APPOINTMENT,
+    payload: reservation,
   };
 };
