@@ -15,7 +15,7 @@ const handlePayNow = async (dispatch, options, userData, navigate) => {
       quantity: 1,
     };
     const reservation = {
-      profesionalId: options.service,
+      profesionalId: respDb.data.id,
       clientId: userData.id,
       serviceId: options.service,
       date: options.day,

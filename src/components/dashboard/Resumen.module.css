@@ -5,7 +5,7 @@
     padding: 0.5rem;
     width: 100%;
     height:auto;
-    background-color: #f5b7b1;
+    background-color: var(--background);
 }
 .profile_admin{
     display:flex;
@@ -18,14 +18,14 @@
    
 
 }
-.profile_admin div {
+.detailsDetails {
     display: flex;
     justify-content: center;
     align-items: center;
     padding:0.5rem;
     text-align: center;
 }
-.profile_admin > figure{
+.figure{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -33,9 +33,8 @@
     height:100%;
     clip-path: circle(30% at 50% 50%);
 }
-.profile_admin img {
-    width:100%;
-    height:100%;
+.logo {
+    width:70%;
     object-fit: contain;
 }
 .details {
@@ -54,11 +53,12 @@
     padding:0.5rem
     
 }
-.content_details >div{
+.content_details > div{
     
     flex-grow: 1;
 }
- h2 , span {
+
+.names_details > h2  , span {
     color:black;
     letter-spacing: 2px;
 }

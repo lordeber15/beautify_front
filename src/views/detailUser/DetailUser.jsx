@@ -38,13 +38,14 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
       adress: userFromDb.adress,
       phone: userFromDb.phone,
       image: userFromDb.image,
+      balance: userFromDb.balance,
     });
   };
 
   const onLogout = async () => {
     setLogout(false);
     // trae información del carrito y el id de usuario del local
-    const localCart = JSON.parse(localStorage.getItem("cart"));
+    const localCart = JSON.parse(localStorage.getItem("cart")) || [];
     const userId = JSON.parse(localStorage.getItem("userData")).id;
 
     if (localCart.length) {
@@ -82,6 +83,7 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
     adress: "",
     phone: "",
     image: "",
+    balance: "",
   };
 
   const [userData, setUserData] = useState(initialState);
@@ -121,6 +123,7 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
       adress: userFromDb.adress,
       phone: userFromDb.phone,
       image: userFromDb.image,
+      balance: userFromDb.balance,
     });
     setVisibleInputs(initialState);
     setUpdatedData(initialState);
@@ -240,6 +243,10 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
                 Submit changes
               </button>
             )}
+
+            <h4 style={{ color: "#d14d72" }}>
+              Your credit: ${Math.abs(userData.balance) || 0}
+            </h4>
 
             <hr className={styles.hr} />
 

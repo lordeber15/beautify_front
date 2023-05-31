@@ -9,10 +9,11 @@ export const getAppointmentsByClient = async (clientId) => {
   }
 };
 
-
 export const getAppointmentsHours = async (serviceId, date) => {
   try {
-    return await axios.get(`/appointments/service/${serviceId}/date/${date}`);
+    return await axios.get(
+      `/appointments/service/${serviceId}/date/${date}`
+    );
   } catch (error) {
     console.log(error.message);
   }
@@ -20,7 +21,10 @@ export const getAppointmentsHours = async (serviceId, date) => {
 
 export const createAppointmentMP = async (appointmentData) => {
   try {
-    return await axios.post(`/mercadopago/service_preference`, appointmentData);
+    return await axios.post(
+      `/mercadopago/service_preference`,
+      appointmentData
+    );
   } catch (error) {
     console.log(error.message);
   }
@@ -36,6 +40,14 @@ export const createAppointment = async (appointmentData) => {
 export const getAllAppointments = async () => {
   try {
     return await axios.get(`/appointments`);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+export const cancelAppointment = async (appointmentId) => {
+  try {
+    return await axios.delete(`/appointments/${appointmentId}`);
   } catch (error) {
     console.log(error.message);
   }
