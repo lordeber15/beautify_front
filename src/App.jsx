@@ -54,6 +54,7 @@ import CheckoutAppointment from "./views/checkoutAppointment/CheckoutAppointment
 import AppointmentSuccess from "./views/appointmentSuccess/AppointmentSuccess";
 
 import NavAdmin from "./components/navAdmin/NavAdmin";
+import Sales from "./views/Sales/Sales";
 
 //Para deploy
 import axios from "axios";
@@ -129,14 +130,14 @@ function App() {
       logout
     ) {
       try {
-        await loginWithGoogleFirebase(
+        const client = await loginWithGoogleFirebase(
           usuarioFirebase,
           dispatch,
           navigate,
           locationNow
         );
         setLogout(false);
-
+        if (!client) return;
         const currentLocation = locationNow.pathname;
         const oldLocation = JSON.parse(localStorage.getItem("oldLocation"));
 
@@ -155,30 +156,33 @@ function App() {
     }
   });
 
-  console.log(locationNow.pathname);
-
   return (
     <div className="App">
       {locationNow.pathname !== "/" &&
+      locationNow.pathname !== "/loading" &&
+      locationNow.pathname !== "/checkout" &&
+      (locationNow.pathname == "/dashboardAdmin" ||
+        locationNow.pathname == "/dashboardAdmin" ||
+        locationNow.pathname == "/dashboardAdmin/clients" ||
+        locationNow.pathname == "/dashboardAdmin/appointments" ||
+        locationNow.pathname == "/dashboardAdmin/newProduct" ||
+        locationNow.pathname == "/dashboardAdmin/services_control" ||
+        locationNow.pathname == "/dashboardAdmin/products_control/:id" ||
+        locationNow.pathname == "/dashboardAdmin/newProfessional" ||
+        locationNow.pathname == "/dashboardAdmin/products_control" ||
+        locationNow.pathname == "/dashboardAdmin/newProduct" ||
+        locationNow.pathname == "/dashboardAdmin/professionals") ? (
+        <NavAdmin setLogout={setLogout} />
+      ) : (
+        locationNow.pathname !== "/" &&
         locationNow.pathname !== "/loading" &&
-        locationNow.pathname !== "/checkout" &&
-        locationNow.pathname == "/dashboardAdmin" &&
-        locationNow.pathname == "/dashboardAdmin/clients" &&
-        locationNow.pathname == "/dashboardAdmin/appointments" &&
-        locationNow.pathname == "/dashboardAdmin/services_control" &&
-        locationNow.pathname == "/dashboardAdmin/products_control/:id" &&
-        locationNow.pathname == "/dashboardAdmin/newProfessional" &&
-        locationNow.pathname == "/dashboardAdmin/products_control" &&
-        locationNow.pathname == "/dashboardAdmin/professionals" && <NavAdmin />}
-      {locationNow.pathname !== "/" &&
-        locationNow.pathname !== "/loading" &&
-        locationNow.pathname !== "/checkout" &&
-        locationNow.pathname !== "/dashboardAdmin" && (
+        locationNow.pathname !== "/checkout" && (
           <Nav
             handleLoginClick={handleLoginClick}
             handleDetailClick={handleDetailClick}
           />
-        )}
+        )
+      )}
       {errorState.tittle && (
         <AlertWarning
           tittleAlert={errorState.tittle}
@@ -203,21 +207,19 @@ function App() {
       )}
 
       <Routes>
-        {/* Rutas que tiene acceso cualquiera */}
         <Route
           path="/"
-          element={
-            <Landing
-              handleLoginClick={handleLoginClick}
-              loginVisible={loginVisible}
-            />
-          }
+          element={<Landing handleLoginClick={handleLoginClick} />}
         />
         <Route path="/loading" element={<Loading />} />
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/products" element={<Products />} />
-        <Route path="/services" element={<Services />} />
+        <Route
+          path="/services"
+          element={<Services handleLoginClick={handleLoginClick} />}
+        />
         <Route path="/detailService/:id" element={<DetailService />} />
         <Route
           path="/detailProduct/:id"
@@ -227,7 +229,15 @@ function App() {
         <Route path="/contact" element={<ContactForm />} />
 
         {/* Rutas solo para ADMIN */}
-        <Route element={<ProtectedRoute isAllowed={userData.rol === ADMIN} />}>
+        <Route
+          element={
+            <ProtectedRoute
+              isAllowed={
+                JSON.parse(localStorage.getItem("userData"))?.rol === ADMIN
+              }
+            />
+          }
+        >
           <Route path="/dashboardAdmin" element={<DashboardAdmin />} />
           <Route path="/dashboardAdmin/newProduct" element={<NewProduct />} />
           <Route path="/dashboardAdmin/clients" element={<Clients />} />
@@ -255,6 +265,7 @@ function App() {
             path="/dashboardAdmin/newProfessional"
             element={<NewProfessional />}
           />
+          <Route path="/dashboardAdmin/sales" element={<Sales />} />
         </Route>
         {/* Rutas solo para CLIENT */}
         {/* <Route element={<ProtectedRoute isAllowed={userData.rol === CLIENT} />}>
@@ -288,7 +299,6 @@ function App() {
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
-
       {locationNow.pathname !== "/" &&
         locationNow.pathname !== "/loading" &&
         locationNow.pathname !== "/checkout" &&

@@ -1,5 +1,6 @@
 import { getClientShops } from "../request/clients";
 import { getAppointmentsByClient } from "../request/appointments";
+import { getCommentsByClient } from "../request/comments";
 
 const setUserInfo = async (setUserData, setShops, setAppointments) => {
   //*trae la info del usuario del local storage y la setea en el estado
@@ -10,30 +11,51 @@ const setUserInfo = async (setUserData, setShops, setAppointments) => {
   const dataDbShops = await getClientShops(userDataFromStorage.id);
   const dbShops = dataDbShops.data;
 
-  const optimizedShops = dbShops.map(
-    ({ id, amount, discount, details, date }) => {
-      const prettyDate =
-        date.slice(8, 10) + "/" + date.slice(5, 7) + "/" + date.slice(0, 4);
+  const dataComments = await getCommentsByClient(userDataFromStorage.id);
+  const comments = dataComments.data;
 
-      return {
-        id,
-        amount,
-        discount,
-        details,
-        date: prettyDate,
-        ableToCancelShop: ableToCancelShop(date),
-      };
-    }
-  );
+  if (!dbShops.length) setShops([]);
+  else {
+    const optimizedShops = dbShops.map(
+      ({ id, amount, discount, details, date }) => {
+        const prettyDate =
+          date.slice(8, 10) + "/" + date.slice(5, 7) + "/" + date.slice(0, 4);
 
-  optimizedShops.sort((a, b) => {
-    if (a.id < b.id) return 1;
-    if (a.id > b.id) return -1;
-    return 0;
-  });
+        const optimizedDetails = details.map((det) => {
+          const comment = comments.filter(
+            (com) => com.ProductId === det.productId
+          );
+          return { ...det, comment: comment[0] || null };
+        });
 
-  setShops(optimizedShops);
+        const productsNamesArray = details.map(({ productName }, i) => {
+          if (i < details.length - 1) return `${productName}, `;
+          else return productName;
+        });
+        const productsNames = productsNamesArray.join("");
 
+        return {
+          id,
+          amount,
+          discount,
+          productsNames,
+          details: optimizedDetails,
+          date: prettyDate,
+          ableToCancelShop: ableToCancelShop(date),
+        };
+      }
+    );
+    optimizedShops[0].date = "10/1/2023";
+    optimizedShops[0].ableToCancelShop = false;
+
+    optimizedShops.sort((a, b) => {
+      if (a.id < b.id) return 1;
+      if (a.id > b.id) return -1;
+      return 0;
+    });
+
+    setShops(optimizedShops);
+  }
   //* trae los appointments del cliente de la base de datos, los embellece y los setea en el estado
   const dataDbAppointments = await getAppointmentsByClient(
     userDataFromStorage.id
@@ -41,17 +63,20 @@ const setUserInfo = async (setUserData, setShops, setAppointments) => {
   const dbAppointments = dataDbAppointments.data;
 
   const optimizedAppointments = dbAppointments.map(
-    ({ Profesional, Service, date, hour, id }) => {
+    ({ Profesional, Service, date, hour, id, paid }) => {
       const prettyDate =
         date.slice(8, 10) + "/" + date.slice(5, 7) + "/" + date.slice(0, 4);
 
+      const comment = comments.filter((com) => com.ServiceId === id);
       return {
         id,
+        paid,
         profesional: Profesional.fullname,
         service: Service.name,
         date: prettyDate,
         hour: hour.slice(0, 5),
         ableToCancelAppointment: ableToCancelAppointment(date, hour),
+        comment: comment[0],
       };
     }
   );
