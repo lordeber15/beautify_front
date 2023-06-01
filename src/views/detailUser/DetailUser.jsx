@@ -253,7 +253,7 @@ function DetailUser({ setLogout, detailVisible, handleDetailClick }) {
             )}
 
             <h4 style={{ color: "#d14d72" }}>
-              Your credit: ${Math.abs(userData.balance) || 0}
+              Your credit: ${Math.abs(userData.balance.toFixed(2)) || 0}
             </h4>
 
             <hr className={styles.hr} />
