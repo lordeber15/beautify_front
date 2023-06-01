@@ -134,16 +134,8 @@ function DetailProduct({ handleLoginClick }) {
     };
   }, [id]);
 
-  const {
-    name,
-    image,
-    description,
-    price,
-    stock,
-    rate,
-    discount,
-    comments,
-  } = product;
+  const { name, image, description, price, stock, rate, discount, comments } =
+    product;
   return (
     <div className={styles.aux}>
       <div className={styles.container}>
