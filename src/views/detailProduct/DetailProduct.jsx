@@ -22,7 +22,7 @@ import { deleteFavorite } from "../../request/favorites";
 
 function DetailProduct({ handleLoginClick }) {
   const navigate = useNavigate();
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [errorQuantity, setErrorQuantity] = useState(false);
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -226,7 +226,6 @@ function DetailProduct({ handleLoginClick }) {
             <label className={styles.shopMax}>Max {stock}</label>
             {/* <Link to="/cart"> */}
             <button
-              disabled={quantity<=0}
               onClick={handleAddToCart}
               name="buyNow"
               className={styles.btnShopNow}
@@ -239,7 +238,6 @@ function DetailProduct({ handleLoginClick }) {
 
             <div className={styles.btnCartAndList}>
               <button
-                disabled={quantity<=0}
                 onClick={handleAddToCart}
                 name="addToCart"
                 className={styles.addCart}
