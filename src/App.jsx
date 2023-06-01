@@ -48,7 +48,7 @@ import DetailService from "./views/detailService/DetailService";
 import ProductsAdmin from "./views/ProductsAdmin/ProductsAdmin";
 import ProductDetailAdmin from "./views/ProductDetailAdmin/ProductsDetailAdmin";
 import UserHistory from "./views/userHistory/UserHistory";
-import NewProfessional from "./views/newProfessional/newProfessional";
+import NewProfessional from "./views/newProfessional/NewProfessional";
 
 import CheckoutAppointment from "./views/checkoutAppointment/CheckoutAppointment";
 import AppointmentSuccess from "./views/appointmentSuccess/AppointmentSuccess";
