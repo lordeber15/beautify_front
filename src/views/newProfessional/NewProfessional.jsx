@@ -35,14 +35,14 @@ export default function NewProfessional() {
   const handleClickSubmit = (e) => {
     e.preventDefault();
     if (
-      errors.fullname === "" ||
-      errors.mail === "" ||
-      errors.direction === "" ||
-      errors.imageProfessional === "" ||
-      errors.name === "" ||
-      errors.description === "" ||
-      errors.price === "" ||
-      errors.imageService === "" ||
+      errors.fullname === "" &&
+      errors.mail === "" &&
+      errors.direction === "" &&
+      errors.imageProfessional === "" &&
+      errors.name === "" &&
+      errors.description === "" &&
+      errors.price === "" &&
+      errors.imageService === "" &&
       errors.duration === ""
     ) {
       const aux = {
