@@ -60,6 +60,17 @@ export default function NewProfessional() {
       };
       // console.log(aux);
       createProfessional(aux);
+      setCreationInfo({
+        fullname: "",
+        mail: "",
+        direction: "",
+        imageProfessional: "",
+        name: "",
+        description: "",
+        price: "",
+        imageService: "",
+        duration: "",
+      });
     } else {
       dispatch(
         showError({
