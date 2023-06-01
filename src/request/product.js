@@ -1,17 +1,16 @@
 import axios from "axios";
 
-const URL_BASE = "http://localhost:3001";
 
 export const getProductByName = async (searched) => {
   try {
-    return await axios.get(`${URL_BASE}/products?name=${searched}`);
+    return await axios.get(`/products?name=${searched}`);
   } catch (error) {
     console.log(error.message);
   }
 };
 export const getProductById = async (id) => {
   try {
-    return await axios.get(`${URL_BASE}/products/${Number(id)}`);
+    return await axios.get(`/products/${Number(id)}`);
   } catch (error) {
     console.log(error.message);
   }
@@ -19,14 +18,14 @@ export const getProductById = async (id) => {
 
 export const getProducts = async () => {
   try {
-    return await axios.get(`${URL_BASE}/products`);
+    return await axios.get(`/products`);
   } catch (error) {
     console.log(error.message);
   }
 };
 export const createProduct = async (product) => {
   try {
-    return await axios.post(`${URL_BASE}/products`, product);
+    return await axios.post(`/products`, product);
   } catch (error) {
     console.log(error.message);
   }
@@ -34,7 +33,7 @@ export const createProduct = async (product) => {
 export const updateProduct = async (id, modifiedProduct) => {
   try {
     return await axios.put(
-      `${URL_BASE}/products/${id}`,
+      `/products/${id}`,
       modifiedProduct
     );
   } catch (error) {

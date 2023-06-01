@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const URL_BASE = "http://localhost:3001";
 
 export const getCommentsByClient = async (clientId) => {
   try {
-    return await axios.get(`${URL_BASE}/comments/client/${clientId}`);
+    return await axios.get(`/comments/client/${clientId}`);
   } catch (error) {
     console.log(error.message);
   }
@@ -17,7 +16,7 @@ export const createProductComment = async (
 ) => {
   try {
     return await axios.post(
-      `${URL_BASE}/comments/products/${productId}/${userId}`,
+      `/comments/products/${productId}/${userId}`,
       {
         tittle,
         rating,
@@ -32,7 +31,7 @@ export const createProductComment = async (
 export const createServiceComment = async (form, serviceId, userId) => {
   try {
     return await axios.post(
-      `${URL_BASE}/comments/services/${serviceId}/${userId}`,
+      `/comments/services/${serviceId}/${userId}`,
       form
     );
   } catch (error) {
@@ -42,7 +41,7 @@ export const createServiceComment = async (form, serviceId, userId) => {
 
 export const updateComment = async ({ tittle, rating, content }, commentId) => {
   try {
-    return await axios.put(`${URL_BASE}/comments/${commentId}`, {
+    return await axios.put(`/comments/${commentId}`, {
       tittle,
       rating,
       content,

@@ -1,31 +1,30 @@
 import axios from "axios";
 
-const URL_BASE = "http://localhost:3001";
 
 export const createNewClient = async (clientData) => {
   try {
-    return await axios.post(`${URL_BASE}/client/findOrCreate`, clientData);
+    return await axios.post(`/client/findOrCreate`, clientData);
   } catch (error) {
     console.log(error.message);
   }
 };
 export const getClient = async (mail) => {
   try {
-    return await axios.get(`${URL_BASE}/client/${mail}`);
+    return await axios.get(`/client/${mail}`);
   } catch (error) {
     console.log(error.message);
   }
 };
 export const getAllClients = async () => {
   try {
-    return await axios.get(`${URL_BASE}/client/`);
+    return await axios.get(`/client/`);
   } catch (error) {
     console.log(error.message);
   }
 };
 export const postFindOrCreate = async (userData) => {
   try {
-    return await axios.post(`${URL_BASE}/client/findOrCreate`, userData);
+    return await axios.post(`/client/findOrCreate`, userData);
   } catch (error) {
     console.log(error.message);
   }
@@ -37,7 +36,7 @@ export const updateClient = async (data, id) => {
     for (const property in data) {
       if (data[property]) dataToUpdate[property] = data[property];
     }
-    return await axios.put(`${URL_BASE}/client/${id}`, dataToUpdate);
+    return await axios.put(`/client/${id}`, dataToUpdate);
   } catch (error) {
     console.log(error.message);
   }
@@ -45,7 +44,7 @@ export const updateClient = async (data, id) => {
 
 export const getClientShops = async (clientId) => {
   try {
-    return await axios.get(`${URL_BASE}/shops/shopsByClient/${clientId}`);
+    return await axios.get(`/shops/shopsByClient/${clientId}`);
   } catch (error) {
     console.log(error.message);
   }
@@ -54,14 +53,14 @@ export const getClientShops = async (clientId) => {
 export const banClient = async (clientId) => {
   try {
     console.log(clientId);
-    return await axios.patch(`${URL_BASE}/client/ban/${clientId}`);
+    return await axios.patch(`/client/ban/${clientId}`);
   } catch (error) {
     console.log(error.message);
   }
 };
 export const unbanClient = async (clientId) => {
   try {
-    return await axios.patch(`${URL_BASE}/client/unban/${clientId}`);
+    return await axios.patch(`/client/unban/${clientId}`);
   } catch (error) {
     console.log(error.message);
   }

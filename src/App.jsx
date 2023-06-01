@@ -57,8 +57,8 @@ import NavAdmin from "./components/navAdmin/NavAdmin";
 import Sales from "./views/Sales/Sales";
 
 //Para deploy
-/* import axios from "axios"; */
-/* axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/"; */
+import axios from "axios";
+axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/";
 
 function App() {
   const locationNow = useLocation();

@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const URL_BASE = "http://localhost:3001";
 
 export const getFavorites = async (clientId) => {
   try {
-    return await axios.get(`${URL_BASE}/favorites/${clientId}`);
+    return await axios.get(`/favorites/${clientId}`);
   } catch (error) {
     console.log(error.message);
   }
@@ -12,7 +11,7 @@ export const getFavorites = async (clientId) => {
 
 export const createFavorite = async (clientId, productId) => {
   try {
-    const response = await axios.get(`${URL_BASE}/favorites/${clientId}`);
+    const response = await axios.get(`/favorites/${clientId}`);
     const allClientFavorites = response.data;
 
     for (const product of allClientFavorites) {
@@ -20,7 +19,7 @@ export const createFavorite = async (clientId, productId) => {
         throw Error("Product alredy in Favorites");
     }
 
-    await axios.post(`${URL_BASE}/favorites`, {
+    await axios.post(`/favorites`, {
       clientId,
       productId,
     });
@@ -34,7 +33,7 @@ export const createFavorite = async (clientId, productId) => {
 
 export const deleteFavorite = async (clientId, productId) => {
   try {
-    await axios.delete(`${URL_BASE}/favorites/${clientId}/${productId}`, {
+    await axios.delete(`/favorites/${clientId}/${productId}`, {
       clientId,
       productId,
     });

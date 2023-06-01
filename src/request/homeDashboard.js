@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const URL_BASE = "http://localhost:3001";
 
 export async function getTopFiveRatingProducts() {
   try {
-    const response = await axios.get(`${URL_BASE}/products`);
+    const response = await axios.get(`/products`);
     const products = response.data;
 
 
@@ -30,7 +29,7 @@ export async function getTopFiveRatingProducts() {
 
 export async function getTotalClientes() {
   try {
-    const response = await axios.get(`${URL_BASE}/client`);
+    const response = await axios.get(`/client`);
     const totalClientes = response.data.length;
     return totalClientes;
   } catch (error) {
@@ -42,7 +41,7 @@ export async function getTotalProductos() {
 
 
   try {
-    const response = await axios.get(`${URL_BASE}/products`);
+    const response = await axios.get(`/products`);
     const totalProductos = response.data.length;
     return totalProductos;
   } catch (error) {
@@ -54,7 +53,7 @@ export async function getTotalProductos() {
 export async function getTotalServices() {
 
   try {
-    const response = await axios.get(`${URL_BASE}/services`);
+    const response = await axios.get(`/services`);
     const totalServices = response.data.length;
     return totalServices;
   } catch (error) {
@@ -65,7 +64,7 @@ export async function getTotalServices() {
 
 export async function getTotalAppointments() {
   try {
-    const response = await axios.get(`${URL_BASE}/appointments`);
+    const response = await axios.get(`/appointments`);
     const totalAppointments = response.data.length;
     return totalAppointments;
   } catch (error) {
@@ -76,7 +75,7 @@ export async function getTotalAppointments() {
 
 export async function getTotalProfesionales() {
   try {
-    const response = await axios.get(`${URL_BASE}/profesionals`);
+    const response = await axios.get(`/profesionals`);
     const totalProfesionales = response.data.length;
     return totalProfesionales;
   } catch (error) {
@@ -89,7 +88,7 @@ export async function getTotalProfesionales() {
 
 export async function getProductsByCategories() {
   try {
-    const response = await axios.get(`${URL_BASE}/products`);
+    const response = await axios.get(`/products`);
 
     const productos = response.data;
 
@@ -114,7 +113,7 @@ export async function getProductsByCategories() {
 
 export async function getProductosMinMaxPrecio() {
   try {
-    const response = await axios.get(`${URL_BASE}/products`);
+    const response = await axios.get(`/products`);
 
     const productos = response.data;
 
@@ -124,7 +123,7 @@ export async function getProductosMinMaxPrecio() {
     const productoMasBarato = productos[productos.length - 1];
 
     return {
-     " higher Price": productoMasCaro.price,
+      " higher Price": productoMasCaro.price,
       "Lower Price": productoMasBarato.price,
     };
   } catch (error) {
@@ -136,7 +135,7 @@ export async function getProductosMinMaxPrecio() {
 
 
 export async function getStaticsAppointments() {
-  const appointments = await axios.get(`${URL_BASE}/appointments`);
+  const appointments = await axios.get(`/appointments`);
   const appointmentsData = appointments.data;
 
   const appointmentTypesCount = {};
