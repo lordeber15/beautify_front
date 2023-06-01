@@ -77,4 +77,21 @@ export default function validateCreateService(serviceInfo, setErrors) {
       });
     }
   }
+  const regexNumber = /^\d+(.\d+)?$/;
+  if (!serviceInfo.duration) {
+    setErrors((prevState) => {
+      return { ...prevState, duration: "Required" };
+    });
+  }
+  if (serviceInfo.duration) {
+    if (!regexNumber.test(Number(serviceInfo.duration))) {
+      setErrors((prevState) => {
+        return { ...prevState, duration: "Invalid" };
+      });
+    } else {
+      setErrors((prevState) => {
+        return { ...prevState, duration: "" };
+      });
+    }
+  }
 }
