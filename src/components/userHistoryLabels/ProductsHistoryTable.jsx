@@ -30,7 +30,7 @@ export default function ProductsHistoryTable({
         id: row.id,
         col1: row.date,
         col2: row.amount.toFixed(2),
-        col3: ${row.discount.toFixed(2)},
+        col3: `$${row.discount.toFixed(2)}`,
         col4: row.productsNames,
         col6: row.ableToCancelShop ? "Cancel purchase" : "",
       };
