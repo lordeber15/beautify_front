@@ -307,3 +307,22 @@
   border: 0px solid var(--text-alt);
   border-radius: 10px;
 }
+@media (max-width: 1300px){
+	.Container{
+		width:40VW;
+    transition: 0.4s;
+	}
+}
+@media (max-width: 800px){
+	.Container{
+		width:60VW;
+    transition: 0.4s;
+	}
+}
+@media (max-width: 500px){
+	.Container{
+		width:100VW;
+    transition: 0.4s;
+	}
+}
+
