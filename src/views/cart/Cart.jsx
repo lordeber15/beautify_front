@@ -25,7 +25,7 @@ function Cart() {
   const [itemToDelete, setItemToDelete] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [isBalance, setIsBalance] = useToggle(false);
-
+  const [loading, setLoading] = useState(false);
   //*** validar el carrito
   let cantArticulos = cart.length;
   let totalPrice = 0;
@@ -134,6 +134,7 @@ function Cart() {
 
   const handleCheckOut = async () => {
     try {
+      localStorage.removeItem("preference");
       //const localCarrito = JSON.parse(localStorage.getItem("cart"));
       const carrito = cart.map((element) => {
         return {
@@ -146,6 +147,7 @@ function Cart() {
       let aux = [...carrito, emailUsuario];
       const respMP = await askPreference(aux);
       localStorage.setItem("preference", JSON.stringify(respMP.data.id));
+      setLoading(true);
     } catch (error) {
       dispatch(
         showError({
@@ -173,7 +175,7 @@ function Cart() {
         </div>
         {balance !== 0 && (
           <div className={styles.textBalance}>
-            Has a balance of {Math.abs(balance)} in your favor{" "}
+            Has a balance of ${Math.abs(balance)} in your favor{" "}
           </div>
         )}
         <label className={styles.txtCarrito}>
@@ -195,20 +197,11 @@ function Cart() {
               </div>
             </div>
             <div className={styles.botonesArticulo}>
+              <div className={styles.precio}>
+                Unit price ${cartItem.price - cartItem.discount}
+              </div>
               <div className={styles.cantidad}>
                 <div className={styles.btnupdown}>
-                  <button
-                    disabled={cartItem.quantity === cartItem.stock}
-                    className={styles.btnCart}
-                    onClick={handleQuantity}
-                    name="add"
-                    value={cartItem.id}
-                  >
-                    +
-                  </button>
-                  <h3 className={styles.cantidadProduct}>
-                    {cartItem.quantity}
-                  </h3>
                   <button
                     disabled={cartItem.quantity === 1}
                     className={styles.btnCart}
@@ -218,10 +211,25 @@ function Cart() {
                   >
                     -
                   </button>
+                  <h3 className={styles.cantidadProduct}>
+                    {cartItem.quantity} un
+                  </h3>
+                  <button
+                    disabled={cartItem.quantity === cartItem.stock}
+                    className={styles.btnCart}
+                    onClick={handleQuantity}
+                    name="add"
+                    value={cartItem.id}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
               <div className={styles.precio}>
-                $ {cartItem.price - cartItem.discount}
+                Subtotal ${" "}
+                {Number(
+                  (cartItem.price - cartItem.discount) * cartItem.quantity
+                ).toFixed(2)}
               </div>
               <button
                 className={styles.btnDelete}
@@ -262,13 +270,16 @@ function Cart() {
         }}
         questionText={"Are you sure you wanna remove that item from your card?"}
       />
-
-      <AlertDialogSlide
-        handleCloseDialog={handleCloseCheckoutDialog}
-        openDialog={openCheckoutDialog}
-        yesCallback={() => navigate("/checkout")}
-        questionText={"Are you sure you wanna proceed to purchase?"}
-      />
+      {loading ? (
+        <AlertDialogSlide
+          handleCloseDialog={handleCloseCheckoutDialog}
+          openDialog={openCheckoutDialog}
+          yesCallback={() => navigate("/checkout")}
+          questionText={"Are you sure you wanna proceed to purchase?"}
+        />
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { ADMIN, CLIENT } from "./roles";
 import { validateUpdateUser } from "./validateUpdateUser";
 import { getCart } from "../request/cart";
 import validateCreateProfessional from "./validateCreateProfessional";
+import validateCreateService from "./validateCreateService";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAACot6qy29p4K1ra6oQ_1CGVjDTbe0dsw",
@@ -91,10 +92,10 @@ export const uploadServicePhoto = async (
   // devuelve la url del archivo
   const url = await getDownloadURL(archivoRef);
 
-  console.log(url);
+  // console.log(url);
 
   setCreationInfo({ ...creationInfo, imageService: url });
-  validateCreateProfessional({ ...creationInfo, imageService: url }, setErrors);
+  validateCreateService({ ...creationInfo, imageService: url }, setErrors);
 };
 
 export const uploadProfilePicture = async (
@@ -155,7 +156,10 @@ export const loginWithGoogleFirebase = async (
       rol: CLIENT,
     };
 
-    if (userData.email === "beautifyfinalproyect@gmail.com") {
+    if (
+      userData.email === "beautifyfinalproyect@gmail.com" ||
+      userData.email === "BeautifyStaff@hotmail.com"
+    ) {
       userData.rol = ADMIN;
     }
 
@@ -172,7 +176,6 @@ export const loginWithGoogleFirebase = async (
 
     // locationNow.pathname === "/" && navigate("/home");
     return userData;
-
   } catch (error) {
     navigate("/");
     console.log(error.message);

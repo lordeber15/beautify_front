@@ -57,8 +57,8 @@ import NavAdmin from "./components/navAdmin/NavAdmin";
 import Sales from "./views/Sales/Sales";
 
 //Para deploy
-import axios from "axios";
-axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/";
+/* import axios from "axios"; */
+/* axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/"; */
 
 function App() {
   const locationNow = useLocation();
@@ -122,7 +122,6 @@ function App() {
   onAuthStateChanged(auth, async (usuarioFirebase) => {
     // las tres condiciones: hubo un cambio en la auth, el usuario recibido es de google, antes no había usuario logueado
     // la intención de estas condiciones es que sólo se ejecute la función cuando el usuario esté logueándose con Google
-
     if (
       usuarioFirebase &&
       usuarioFirebase.displayName &&
@@ -161,17 +160,7 @@ function App() {
       {locationNow.pathname !== "/" &&
       locationNow.pathname !== "/loading" &&
       locationNow.pathname !== "/checkout" &&
-      (locationNow.pathname == "/dashboardAdmin" ||
-        locationNow.pathname == "/dashboardAdmin" ||
-        locationNow.pathname == "/dashboardAdmin/clients" ||
-        locationNow.pathname == "/dashboardAdmin/appointments" ||
-        locationNow.pathname == "/dashboardAdmin/newProduct" ||
-        locationNow.pathname == "/dashboardAdmin/services_control" ||
-        locationNow.pathname == "/dashboardAdmin/products_control/:id" ||
-        locationNow.pathname == "/dashboardAdmin/newProfessional" ||
-        locationNow.pathname == "/dashboardAdmin/products_control" ||
-        locationNow.pathname == "/dashboardAdmin/newProduct" ||
-        locationNow.pathname == "/dashboardAdmin/professionals") ? (
+      locationNow.pathname.includes("/dashboardAdmin") ? (
         <NavAdmin setLogout={setLogout} />
       ) : (
         locationNow.pathname !== "/" &&
