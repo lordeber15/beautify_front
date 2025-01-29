@@ -58,7 +58,7 @@ import Sales from "./views/Sales/Sales";
 
 //Para deploy
 import axios from "axios";
-axios.defaults.baseURL = "https://beautifybackend-production.up.railway.app/";
+axios.defaults.baseURL = "https://beautify-backend-czwb.onrender.com";
 
 function App() {
   const locationNow = useLocation();
